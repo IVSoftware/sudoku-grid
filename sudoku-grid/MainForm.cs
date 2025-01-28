@@ -13,7 +13,7 @@ namespace sudoku_grid
             {
                 for (int row = 0; row < 9; row++)
                 {
-                    gameBoard.Controls.Add(new Square
+                    var square = new Square
                     {
                         Size = new Size(48, 48),
                         Margin = new Padding(1),
@@ -23,11 +23,22 @@ namespace sudoku_grid
                         BorderStyle = BorderStyle.FixedSingle,
                         TextAlign = ContentAlignment.MiddleCenter,
                         Font = new Font(Font.FontFamily, 16),
-                    }, col, row);
+                    };
+                    square.Click += Any_SquareClicked;
+                    gameBoard.Controls.Add(square, col, row);
                 }
             }
             InitGame();
         }
+
+        private void Any_SquareClicked(object? sender, EventArgs e)
+        {
+            if (sender is Square square && !square.IsFixedValue)
+            {
+
+            }
+        }
+
         Square GetSquare(int col, int row) =>
             gameBoard
             .GetControlFromPosition(col, row) as Square 
