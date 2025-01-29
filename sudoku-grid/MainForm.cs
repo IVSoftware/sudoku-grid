@@ -59,7 +59,8 @@ namespace sudoku_grid
 
         Square this[int column, int row]
         {
-            get => gameBoard.GetControlFromPosition(column, row) as Square ?? throw new InvalidOperationException();
+            get => gameBoard.GetControlFromPosition(column, row) as Square
+                ?? throw new InvalidOperationException();
             set => gameBoard.Controls.Add(value, column, row);
         }
 
@@ -142,6 +143,24 @@ namespace sudoku_grid
             this[2, 8].FixedValue = 2;
             this[3, 8].FixedValue = 4;
             this[6, 8].FixedValue = 7;
+
+
+            for (int i = 1; i <= 7; i += 2)
+            {
+                var nonant = GetNonant(i);
+                for (int row = 0; row < 3; row++)
+                {
+                    for (int column = 0; column < 3; column++)
+                    {
+                        var square = nonant[row, column];
+                        var currentColor = square.BackColor;
+                        square.BackColor = 
+                            square.IsFixedValue
+                            ? Color.FromArgb(240, 0x22, 0x22, 0x22)
+                            : Color.FromArgb(0x80, 0x80, 0x80);
+                    }
+                }
+            }
         }
 
 
