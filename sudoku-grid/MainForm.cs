@@ -169,7 +169,6 @@ namespace sudoku_grid
             int? _value = default;
 
             public bool IsFixedValue { get; private set; }
-
             public int? FixedValue
             {
                 set
