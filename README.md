@@ -54,7 +54,8 @@ public MainForm()
 
 ###### Game Board, after running `InitGame` and player makes a few moves.
 
-[![game board][1]][1]
+
+[![game board][2]][2]
 
 ___
 
@@ -93,5 +94,4 @@ Square[,] GetNonant(int oneOfNine)
 }
 ~~~
 
-
-  [1]: https://i.sstatic.net/nS4k90rP.png
+  [2]: https://i.sstatic.net/828JdtLT.png
