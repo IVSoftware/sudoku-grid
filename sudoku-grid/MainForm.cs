@@ -10,7 +10,6 @@ namespace sudoku_grid
         public MainForm()
         {
             InitializeComponent();
-            var columnumns = new List<Square>[9];
             for (int column = 0; column < 9; column++)
             {
                 for (int row = 0; row < 9; row++)
