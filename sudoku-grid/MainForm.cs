@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Diagnostics;
 using System.Drawing;
 using System.Security.Cryptography.Xml;
 
@@ -9,7 +10,8 @@ namespace sudoku_grid
         public MainForm()
         {
             InitializeComponent();
-            for (int col = 0; col < 9; col++)
+            var columnumns = new List<Square>[9];
+            for (int column = 0; column < 9; column++)
             {
                 for (int row = 0; row < 9; row++)
                 {
@@ -25,10 +27,41 @@ namespace sudoku_grid
                         Font = new Font(Font.FontFamily, 16),
                     };
                     square.Click += Any_SquareClicked;
-                    gameBoard.Controls.Add(square, col, row);
+                    this[column, row] = square;
                 }
             }
             InitGame();
+#if DEBUG
+            DoSelfTest();
+#endif
+        }
+
+        private void DoSelfTest()
+        {
+            // Output rows to debug window
+            for(int row = 0; row < 9; row++)
+            {
+                Debug.WriteLine(string.Join(",", GetRow(row).Select(_=>_.Value ?? 0)));
+            }
+
+            // Output nonants 1-9 to debug window
+            for (int oneOfNine = 0; oneOfNine < 9; oneOfNine++)
+            {
+                var nonant = GetNonant(oneOfNine);
+
+                for (int row = 0; row < 3; row++)
+                {
+                    Debug.WriteLine(string.Join(",", Enumerable.Range(0, 3)
+                        .Select(column => nonant[row, column].Value ?? 0)));
+                }
+                Debug.WriteLine("");
+            }
+        }
+
+        Square this[int column, int row]
+        {
+            get => gameBoard.GetControlFromPosition(column, row) as Square ?? throw new InvalidOperationException();
+            set => gameBoard.Controls.Add(value, column, row);
         }
 
         private void Any_SquareClicked(object? sender, EventArgs e)
@@ -36,53 +69,82 @@ namespace sudoku_grid
             if (sender is Square square && !square.IsFixedValue)
             {
 
+                using(var entry = new NumericEntryForm())
+                {
+                    if(DialogResult.Cancel != entry.ShowDialog(this, square.Value))
+                    {
+                        square.Value = entry.Value;
+                    }
+                }
             }
         }
 
-        Square GetSquare(int col, int row) =>
-            gameBoard
-            .GetControlFromPosition(col, row) as Square 
-            ?? throw new NullReferenceException();
+        Square[] GetRow(int row) =>
+            Enumerable
+            .Range(0, 9)
+            .Select(_ => this[_, row])
+            .ToArray();
+
+        Square[] GetColumn(int column) =>
+            Enumerable
+            .Range(0, 9)
+            .Select(_ => this[column, _])
+            .ToArray();
+        Square[,] GetNonant(int oneOfNine)
+        {
+            int startRow = (oneOfNine / 3) * 3;
+            int startColumn = (oneOfNine % 3) * 3;
+            Square[,] nonant = new Square[3, 3];
+            for (int row = 0; row < 3; row++)
+            {
+                for (int column = 0; column < 3; column++)
+                {
+                    nonant[row, column] = this[startColumn + column, startRow + row];
+                }
+            }
+            return nonant;
+        }
 
         void InitGame()
         {
-            GetSquare(4, 0).FixedValue = 8;
+            this[4, 0].FixedValue = 8;
 
-            GetSquare(1, 1).FixedValue = 2;
-            GetSquare(3, 1).FixedValue = 7;
-            GetSquare(4, 1).FixedValue = 1;
-            GetSquare(8, 1).FixedValue = 5;
+            this[1, 1].FixedValue = 2;
+            this[3, 1].FixedValue = 7;
+            this[4, 1].FixedValue = 1;
+            this[8, 1].FixedValue = 5;
 
-            GetSquare(0, 2).FixedValue = 8;
-            GetSquare(5, 2).FixedValue = 5;
-            GetSquare(8, 2).FixedValue = 1;
+            this[0, 2].FixedValue = 8;
+            this[5, 2].FixedValue = 5;
+            this[8, 2].FixedValue = 1;
 
-            GetSquare(0, 3).FixedValue = 7;
-            GetSquare(2, 3).FixedValue = 9;
-            GetSquare(5, 3).FixedValue = 3;
-            GetSquare(6, 3).FixedValue = 4;
+            this[0, 3].FixedValue = 7;
+            this[2, 3].FixedValue = 9;
+            this[5, 3].FixedValue = 3;
+            this[6, 3].FixedValue = 4;
 
-            GetSquare(1, 4).FixedValue = 4;
-            GetSquare(3, 4).FixedValue = 5;
-            GetSquare(8, 4).FixedValue = 3;
+            this[1, 4].FixedValue = 4;
+            this[3, 4].FixedValue = 5;
+            this[8, 4].FixedValue = 3;
 
-            GetSquare(2, 5).FixedValue = 5;
-            GetSquare(7, 5).FixedValue = 7;
-            GetSquare(8, 5).FixedValue = 9;
+            this[2, 5].FixedValue = 5;
+            this[7, 5].FixedValue = 7;
+            this[8, 5].FixedValue = 9;
 
-            GetSquare(0, 6).FixedValue = 5;
-            GetSquare(4, 6).FixedValue = 7;
-            GetSquare(7, 6).FixedValue = 9;
-            GetSquare(8, 6).FixedValue = 2;
+            this[0, 6].FixedValue = 5;
+            this[4, 6].FixedValue = 7;
+            this[7, 6].FixedValue = 9;
+            this[8, 6].FixedValue = 2;
 
-            GetSquare(2, 7).FixedValue = 6;
-            GetSquare(3, 7).FixedValue = 3;
+            this[2, 7].FixedValue = 6;
+            this[3, 7].FixedValue = 3;
 
-            GetSquare(1, 8).FixedValue = 9;
-            GetSquare(2, 8).FixedValue = 2;
-            GetSquare(3, 8).FixedValue = 4;
-            GetSquare(6, 8).FixedValue = 7;
+            this[1, 8].FixedValue = 9;
+            this[2, 8].FixedValue = 2;
+            this[3, 8].FixedValue = 4;
+            this[6, 8].FixedValue = 7;
         }
+
 
 
         class Square : Label
